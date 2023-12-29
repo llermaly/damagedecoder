@@ -11,13 +11,10 @@ import weaviate
 
 load_dotenv()
 
-auth_config = weaviate.AuthApiKey(api_key=os.environ["WEAVIATE_API_KEY"])
-
 client = weaviate.Client(
-    "https://carparts-28-12-2023-qpdn512a.weaviate.network",
-    auth_client_secret=auth_config,
+    os.environ["WEAVIATE_URL"],
+    auth_client_secret=weaviate.AuthApiKey(api_key=os.environ["WEAVIATE_API_KEY"]),
 )
-
 
 vector_store = WeaviateVectorStore(
     weaviate_client=client, index_name="CarPart", text_key="title"
