@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "damagedecoder"
+version = "0.1.0"
+description = ""
+authors = ["abstract829 <maxxii.1820@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+streamlit = "^1.29.0"
+opencv-python = "^4.8.1.78"
+llama-index = "^0.9.22"
+python-dotenv = "^1.0.0"
+setuptools = "^69.0.3"
+weaviate-client = "^3.26.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
