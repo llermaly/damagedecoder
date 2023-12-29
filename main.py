@@ -8,16 +8,22 @@ import numpy as np
 import os
 import streamlit as st
 import weaviate
+from llama_index import SimpleDirectoryReader
+from pydantic_llm import pydantic_llm, DamagedParts, initial_prompt_str
+import pandas as pd
+from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 
 load_dotenv()
 
+states_names = ["front_image", "back_image", "left_image", "right_image"]
+
 auth_config = weaviate.AuthApiKey(api_key=os.environ["WEAVIATE_API_KEY"])
+openai_mm_llm = OpenAIMultiModal(model="gpt-4-vision-preview")
 
 client = weaviate.Client(
     "https://carparts-28-12-2023-qpdn512a.weaviate.network",
     auth_client_secret=auth_config,
 )
-
 
 vector_store = WeaviateVectorStore(
     weaviate_client=client, index_name="CarPart", text_key="title"
@@ -84,6 +90,24 @@ with col2:
     create_drag_and_drop("left_image", "Left Image")
 
 
+def save_image(state_name):
+    path = os.path.join(os.getcwd(), "images")
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    if st.session_state[state_name] is not None:
+        with open(os.path.join(path, f"{state_name}.jpg"), "wb") as f:
+            f.write(st.session_state[state_name].getbuffer())
+
+
+def delete_image(state_name):
+    path = os.path.join(os.getcwd(), "images")
+    if st.session_state[state_name] is not None and os.path.exists(
+        os.path.join(path, f"{state_name}.jpg")
+    ):
+        os.remove(os.path.join(path, f"{state_name}.jpg"))
+
+
 with st.form(key="car_form"):
     selected_make = st.selectbox(
         "Select your car make",
@@ -103,29 +127,47 @@ with st.form(key="car_form"):
     submit_button = st.form_submit_button(label="Submit")
 
 if submit_button:
-    filters = MetadataFilters(
-        filters=[
-            MetadataFilter(key="make", value=selected_make),
-            MetadataFilter(key="model", value=selected_model),
-            MetadataFilter(key="year", value=selected_year),
-        ]
-    )
+    with st.spinner("Processing..."):
+        for state_name in states_names:
+            save_image(state_name)
+        path = os.path.join(os.getcwd(), "images")
 
-    retriever = VectorStoreIndex.from_vector_store(vector_store).as_retriever(
-        filters=filters,
-    )
+        image_documents = SimpleDirectoryReader(path).load_data()
 
-    query_engine = RetrieverQueryEngine(
-        retriever=retriever,
-    )
-
-    with st.spinner("Analyzing your car..."):
-        response = query_engine.query(
-            "Do you think I can fix my ford mustang with this?"
+        response = pydantic_llm(
+            output_class=DamagedParts,
+            image_documents=image_documents,
+            prompt_template_str=initial_prompt_str.format(
+                make_name=selected_make, model_name=selected_model, year=selected_year
+            ),
         )
-        st.subheader("Response")
-        st.write(response.response)
 
-        st.subheader("Nodes")
-        for node in response.source_nodes:
-            st.write(node.node.get_content())
+        for state_name in states_names:
+            delete_image(state_name)
+
+        st.subheader("Summary")
+        st.write(response.summary)
+
+        st.subheader("Damaged Parts")
+        df = pd.DataFrame.from_records(
+            [part.model_dump() for part in response.damaged_parts]
+        )
+        st.dataframe(df)
+
+        # TODO: look for the parts in the vector store
+
+        filters = MetadataFilters(
+            filters=[
+                MetadataFilter(key="make", value=selected_make),
+                MetadataFilter(key="model", value=selected_model),
+                MetadataFilter(key="year", value=selected_year),
+            ]
+        )
+
+        retriever = VectorStoreIndex.from_vector_store(vector_store).as_retriever(
+            filters=filters,
+        )
+
+        query_engine = RetrieverQueryEngine(
+            retriever=retriever,
+        )
