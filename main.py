@@ -21,8 +21,8 @@ auth_config = weaviate.AuthApiKey(api_key=os.environ["WEAVIATE_API_KEY"])
 openai_mm_llm = OpenAIMultiModal(model="gpt-4-vision-preview")
 
 client = weaviate.Client(
-    "https://carparts-28-12-2023-qpdn512a.weaviate.network",
-    auth_client_secret=auth_config,
+    os.environ["WEAVIATE_URL"],
+    auth_client_secret=weaviate.AuthApiKey(api_key=os.environ["WEAVIATE_API_KEY"]),
 )
 
 vector_store = WeaviateVectorStore(
