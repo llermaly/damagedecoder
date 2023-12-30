@@ -9,9 +9,11 @@ import os
 import streamlit as st
 import weaviate
 from llama_index import SimpleDirectoryReader
-from pydantic_llm import pydantic_llm, DamagedParts, initial_prompt_str
+from pydantic_llm import pydantic_llm, DamagedParts, damages_initial_prompt_str, ConditionsReport, conditions_report_initial_prompt_str
 import pandas as pd
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
+from car_colorizer import process_car_parts
+from report import generate_report
 
 load_dotenv()
 
@@ -22,7 +24,8 @@ openai_mm_llm = OpenAIMultiModal(model="gpt-4-vision-preview")
 
 client = weaviate.Client(
     os.environ["WEAVIATE_URL"],
-    auth_client_secret=weaviate.AuthApiKey(api_key=os.environ["WEAVIATE_API_KEY"]),
+    auth_client_secret=weaviate.AuthApiKey(
+        api_key=os.environ["WEAVIATE_API_KEY"]),
 )
 
 vector_store = WeaviateVectorStore(
@@ -83,11 +86,11 @@ col1, col2 = st.columns(2)
 
 with col1:
     create_drag_and_drop("front_image", "Front Image")
-    create_drag_and_drop("right_image", "Right Image")
+    create_drag_and_drop("right_image", "Left Image")
 
 with col2:
     create_drag_and_drop("back_image", "Back Image")
-    create_drag_and_drop("left_image", "Left Image")
+    create_drag_and_drop("left_image", "Right Image")
 
 
 def save_image(state_name):
@@ -134,10 +137,20 @@ if submit_button:
 
         image_documents = SimpleDirectoryReader(path).load_data()
 
-        response = pydantic_llm(
-            output_class=DamagedParts,
+        # damages_response = pydantic_llm(
+        #     output_class=DamagedParts,
+        #     image_documents=image_documents,
+        #     prompt_template_str=damages_initial_prompt_str.format(
+        #         make_name=selected_make, model_name=selected_model, year=selected_year
+        #     ),
+        # )
+
+        # TODO: evaluate if it's a better idea to send pictures one by one
+
+        conditions_report_response = pydantic_llm(
+            output_class=ConditionsReport,
             image_documents=image_documents,
-            prompt_template_str=initial_prompt_str.format(
+            prompt_template_str=conditions_report_initial_prompt_str.format(
                 make_name=selected_make, model_name=selected_model, year=selected_year
             ),
         )
@@ -145,29 +158,51 @@ if submit_button:
         for state_name in states_names:
             delete_image(state_name)
 
-        st.subheader("Summary")
-        st.write(response.summary)
+        st.subheader("Conditions Report")
+        st.table(conditions_report_response)
 
-        st.subheader("Damaged Parts")
-        df = pd.DataFrame.from_records(
-            [part.model_dump() for part in response.damaged_parts]
-        )
-        st.dataframe(df)
+        print(dict(conditions_report_response))
+
+        # TODO Expand for each side of the car, I added logic to exclude parts in the colorizer but feel free to do it in a different way
+
+        colored_car_front = process_car_parts(dict(conditions_report_response), 'front')
+        colored_car_front.save("images/car_parts/colored_car_front.png")
+
+        pdf_report = generate_report(dict(conditions_report_response))
+
+        import streamlit as st
+
+        with open(pdf_report, "rb") as file:
+            btn = st.download_button(
+                label="Download Report",
+                data=file,
+                file_name=pdf_report,
+                mime="application/pdf"
+            )
+
+        # st.subheader("Summary")
+        # st.write(damages_response.summary)
+
+        # st.subheader("Damaged Parts")
+        # df = pd.DataFrame.from_records(
+        #     [part.model_dump() for part in damages_response.damaged_parts]
+        # )
+        # st.dataframe(df)
 
         # TODO: look for the parts in the vector store
 
-        filters = MetadataFilters(
-            filters=[
-                MetadataFilter(key="make", value=selected_make),
-                MetadataFilter(key="model", value=selected_model),
-                MetadataFilter(key="year", value=selected_year),
-            ]
-        )
+        # filters = MetadataFilters(
+        #     filters=[
+        #         MetadataFilter(key="make", value=selected_make),
+        #         MetadataFilter(key="model", value=selected_model),
+        #         MetadataFilter(key="year", value=selected_year),
+        #     ]
+        # )
 
-        retriever = VectorStoreIndex.from_vector_store(vector_store).as_retriever(
-            filters=filters,
-        )
+        # retriever = VectorStoreIndex.from_vector_store(vector_store).as_retriever(
+        #     filters=filters,
+        # )
 
-        query_engine = RetrieverQueryEngine(
-            retriever=retriever,
-        )
+        # query_engine = RetrieverQueryEngine(
+        #     retriever=retriever,
+        # )

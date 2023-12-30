@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vehicle Condition Report</title>
+    <style>
+        /* Add your CSS styles here */
+        .condition-report {
+            font-family: Arial, sans-serif;
+        }
+        .car-part {
+            /* Style for the car part images and text */
+        }
+        /* More styles... */
+    </style>
+</head>
+<body>
+    <img src="{{ images_dir }}/car_parts/{{ car_image['car_front'] }}" alt="Original Car">
+    <div class="condition-report">
+        {% for part, status in conditions.items() %}
+        <div class="car-part">
+            <p>{{ part.replace('_', ' ').title() }} Condition: {{ status_texts[status] }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
