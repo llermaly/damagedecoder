@@ -9,13 +9,20 @@ import os
 import streamlit as st
 import weaviate
 from llama_index import SimpleDirectoryReader
-from pydantic_llm import pydantic_llm, DamagedParts, damages_initial_prompt_str, ConditionsReport, conditions_report_initial_prompt_str
+from pydantic_llm import (
+    pydantic_llm,
+    DamagedParts,
+    damages_initial_prompt_str,
+    ConditionsReport,
+    conditions_report_initial_prompt_str,
+)
 import pandas as pd
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from car_colorizer import process_car_parts
 from report import generate_report
 
 load_dotenv()
+
 
 states_names = ["front_image", "back_image", "left_image", "right_image"]
 
@@ -24,8 +31,7 @@ openai_mm_llm = OpenAIMultiModal(model="gpt-4-vision-preview")
 
 client = weaviate.Client(
     os.environ["WEAVIATE_URL"],
-    auth_client_secret=weaviate.AuthApiKey(
-        api_key=os.environ["WEAVIATE_API_KEY"]),
+    auth_client_secret=weaviate.AuthApiKey(api_key=os.environ["WEAVIATE_API_KEY"]),
 )
 
 vector_store = WeaviateVectorStore(
@@ -41,17 +47,9 @@ css = r"""
 st.markdown(css, unsafe_allow_html=True)
 
 
-if not "front_image" in st.session_state:
-    st.session_state["front_image"] = None
-
-if not "back_image" in st.session_state:
-    st.session_state["back_image"] = None
-
-if not "left_image" in st.session_state:
-    st.session_state["left_image"] = None
-
-if not "right_image" in st.session_state:
-    st.session_state["right_image"] = None
+for state_name in states_names:
+    if state_name not in st.session_state:
+        st.session_state[state_name] = None
 
 
 st.title("Repair your car!")
@@ -165,19 +163,20 @@ if submit_button:
 
         # TODO Expand for each side of the car, I added logic to exclude parts in the colorizer but feel free to do it in a different way
 
-        colored_car_front = process_car_parts(dict(conditions_report_response), 'front')
-        colored_car_front.save("images/car_parts/colored_car_front.png")
+        car_sides = ["front", "back", "left", "right"]
+
+        for side in car_sides:
+            colored_side = process_car_parts(dict(conditions_report_response), side)
+            colored_side.save(f"images/car_parts/colored_car_{side}.png")
 
         pdf_report = generate_report(dict(conditions_report_response))
-
-        import streamlit as st
 
         with open(pdf_report, "rb") as file:
             btn = st.download_button(
                 label="Download Report",
                 data=file,
                 file_name=pdf_report,
-                mime="application/pdf"
+                mime="application/pdf",
             )
 
         # st.subheader("Summary")
