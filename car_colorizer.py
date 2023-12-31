@@ -19,8 +19,10 @@ sides_map = {
             "hood",
             "grill",
             "front_bumper",
-            "mirrors",
-            "front_lights"
+            "right_mirror",
+            "left_mirror",
+            "front_right_light",
+            "front_left_light"
         ],
     },
     "back": {

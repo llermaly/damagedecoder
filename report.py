@@ -40,6 +40,7 @@ def generate_html(conditions):
         images_dir=IMAGES_DIR,
         conditions=conditions_map,
         status_texts=status_texts,
+        summary=conditions["summary"],
     )
 
     return html_content
