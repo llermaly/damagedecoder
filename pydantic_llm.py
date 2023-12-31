@@ -76,7 +76,7 @@ class ConditionsReport(BaseModel):
     hood: Annotated[int, Field(0, ge=0, le=3, description="Hood condition")]
     grill: Annotated[int, Field(0, ge=0, le=3, description="Grill condition")]
     front_bumper: Annotated[int, Field(0, ge=0, le=3, description="Front bumper condition")]
-    mirrors: Annotated[int, Field(0, ge=0, le=3, description="Mirrors condition")]
+    mirrors: Annotated[int, Field(0, ge=0, le=3, description="Front mirror condition")]
     front_lights: Annotated[int, Field(0, ge=0, le=3, description="Front lights condition")]
     rear_window: Annotated[int, Field(0, ge=0, le=3, description="Rear window condition")]
     trunk_tgate: Annotated[int, Field(0, ge=0, le=3, description="Trunk/TGate condition")]

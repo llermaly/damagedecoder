@@ -2,10 +2,10 @@ from PIL import Image
 import os
 
 color_map = {
-    0: "green",  # Good condition
-    1: "yellow",  # Fair condition
-    2: "red",  # Poor condition
-    3: "black",  # Very poor condition
+    0: "gray",  # Not visible
+    1: "green",  # Seems OK
+    2: "yellow",  # Minor Damage
+    3: "red",  # Major damage
 }
 
 # TODO: Add the real parts of each side of the car
@@ -19,9 +19,8 @@ sides_map = {
             "hood",
             "grill",
             "front_bumper",
-            "front_lights",
-            "front_left_tire",
-            "front_right_tire",
+            "mirrors",
+            "front_lights"
         ],
     },
     "back": {
@@ -43,7 +42,6 @@ sides_map = {
             "left_front_door",
             "left_rear_door",
             "left_rear_quarter_panel",
-            "mirrors",
         ],
     },
     "right": {
@@ -53,15 +51,13 @@ sides_map = {
             "right_rear_door",
             "right_front_door",
             "right_fender",
-            "mirrors",
         ],
     },
 }
 
 
 def colorize(image, condition):
-    # Default to grey if condition not in map
-    color = color_map.get(condition, "grey")
+    color = color_map.get(condition, "gray")
     overlay = Image.new("RGBA", image.size, color=color)
     r, g, b, alpha = image.split()
     alpha_transparency = 76  # Around 30% transparency
@@ -72,16 +68,15 @@ def colorize(image, condition):
 
 def process_car_parts(conditions, side):
     base_image = Image.open(sides_map[side]["image"]).convert("RGBA")
-    for part, condition in conditions.items():
-        if part not in sides_map[side]["parts"]:
-            continue
+    for part in sides_map[side]["parts"]:
+        print(f"Processing part: {part}")
         try:
             part_image_path = f"images/car_parts/{part}.png"
             if not os.path.exists(part_image_path):
                 print(f"Image for part '{part}' not found. Skipping.")
                 continue
             part_image = Image.open(part_image_path).convert("RGBA")
-            colored_part = colorize(part_image, condition)
+            colored_part = colorize(part_image, conditions[part])
             base_image.paste(colored_part, (0, 0), colored_part.split()[3])
         except FileNotFoundError:
             print(f"File not found: {part}.png - Skipping this part.")
