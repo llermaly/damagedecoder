@@ -89,8 +89,47 @@ class ConditionsReport(BaseModel):
         0, ge=0, le=3, description="Front right light condition")]
     front_left_light: Annotated[int, Field(
         0, ge=0, le=3, description="Front left light condition")]
-
-
+#back 
+    rear_window: Annotated[int, Field(
+        0, ge=0, le=3, description="Rear window condition")]
+    trunk_tgate: Annotated[int, Field(
+        0, ge=0, le=3, description="Trunk/TGate condition")]
+    trunk_cargo_area: Annotated[int, Field(
+        0, ge=0, le=3, description="Trunk/Cargo area condition")]
+    rear_bumper: Annotated[int, Field(
+        0, ge=0, le=3, description="Rear bumper condition")]
+    right_tail_light: Annotated[int, Field(
+        0, ge=0, le=3, description="Right tail light condition")]
+    left_tail_light: Annotated[int, Field(
+        0, ge=0, le=3, description="Left tail light condition")]
+#left
+    left_rear_quarter: Annotated[int, Field(
+        0, ge=0, le=3, description="Left rear quarter condition")]
+    left_rear_door: Annotated[int, Field(
+        0, ge=0, le=3, description="Left rear door condition")]
+    left_front_door: Annotated[int, Field(
+        0, ge=0, le=3, description="Left front door condition")]
+    left_fender: Annotated[int, Field(
+        0, ge=0, le=3, description="Left fender condition")]
+    left_front_tire: Annotated[int, Field(
+        0, ge=0, le=3, description="Left front tire condition")]
+    left_rear_tire: Annotated[int, Field(
+        0, ge=0, le=3, description="Left rear tire condition")]
+#right
+    right_rear_quarter: Annotated[int, Field(
+        0, ge=0, le=3, description="Right rear quarter condition")]
+    right_rear_door: Annotated[int, Field(
+        0, ge=0, le=3, description="Right rear door condition")]
+    right_front_door: Annotated[int, Field(
+        0, ge=0, le=3, description="Right front door condition")]
+    right_fender: Annotated[int, Field(
+        0, ge=0, le=3, description="Right fender condition")]
+    right_front_tire: Annotated[int, Field(
+        0, ge=0, le=3, description="Right front tire condition")]
+    right_rear_tire: Annotated[int, Field(
+        0, ge=0, le=3, description="Right rear tire condition")]
+    
+    
 def pydantic_llm(output_class, image_documents, prompt_template_str):
     openai_mm_llm = OpenAIMultiModal(model="gpt-4-vision-preview")
     gemini_llm = GeminiMultiModal(model_name="models/gemini-pro-vision")

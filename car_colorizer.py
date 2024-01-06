@@ -13,6 +13,7 @@ color_map = {
 sides_map = {
     "front": {
         "image": "images/car_parts/car_front.png",
+        "numbers": "images/car_parts/car_front_numbers.png",
         "parts": [
             "roof",
             "windshield",
@@ -27,32 +28,38 @@ sides_map = {
     },
     "back": {
         "image": "images/car_parts/car_back.png",
+        "numbers": "images/car_parts/car_back_numbers.png",
         "parts": [
             "rear_window",
             "trunk_tgate",
             "trunk_cargo_area",
             "rear_bumper",
-            "tail_lights",
-            "rear_left_tire",
-            "rear_right_tire",
+            "right_tail_light",
+            "left_tail_light",
         ],
     },
     "left": {
         "image": "images/car_parts/car_left.png",
+        "numbers": "images/car_parts/car_left_numbers.png",
         "parts": [
-            "left_fender",
-            "left_front_door",
+            "left_rear_quarter",
             "left_rear_door",
-            "left_rear_quarter_panel",
+            "left_front_door",
+            "left_fender",
+            "left_front_tire",
+            "left_rear_tire",
         ],
     },
     "right": {
         "image": "images/car_parts/car_right.png",
+        "numbers": "images/car_parts/car_right_numbers.png",
         "parts": [
             "right_rear_quarter",
             "right_rear_door",
             "right_front_door",
             "right_fender",
+            "right_front_tire",
+            "right_rear_tire",
         ],
     },
 }
@@ -70,6 +77,7 @@ def colorize(image, condition):
 
 def process_car_parts(conditions, side):
     base_image = Image.open(sides_map[side]["image"]).convert("RGBA")
+    numbers = Image.open(sides_map[side]["numbers"]).convert("RGBA")
     for part in sides_map[side]["parts"]:
         print(f"Processing part: {part}")
         try:
@@ -84,4 +92,5 @@ def process_car_parts(conditions, side):
             print(f"File not found: {part}.png - Skipping this part.")
         except Exception as e:
             print(f"An error occurred while processing {part}: {e}")
+    base_image.paste(numbers, (0, 0), numbers.split()[3])
     return base_image
