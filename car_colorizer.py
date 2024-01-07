@@ -1,6 +1,7 @@
 from PIL import Image
 import os
 
+
 color_map = {
     0: "gray",  # Not visible
     1: "green",  # Seems OK
@@ -23,7 +24,7 @@ sides_map = {
             "right_mirror",
             "left_mirror",
             "front_right_light",
-            "front_left_light"
+            "front_left_light",
         ],
     },
     "back": {

@@ -20,6 +20,21 @@ import pandas as pd
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from car_colorizer import process_car_parts
 from report import generate_report
+import requests
+from io import BytesIO
+
+api_url = "https://dmg-decoder.up.railway.app"
+
+
+def create_report(data={"test": "123"}):
+    url = f"{api_url}/api/create_report"
+    response = requests.post(
+        url, json=data, headers={"Content-Type": "application/json"}
+    )
+    json = response.json()
+    print(json)
+    return json["id"]
+
 
 load_dotenv()
 
@@ -159,25 +174,40 @@ if submit_button:
         st.subheader("Conditions Report")
         st.table(conditions_report_response)
 
-        print(dict(conditions_report_response))
+        request_data = []
+
+        for part, condition in dict(conditions_report_response).items():
+            request_data.append({"part": part, "condition": condition})
+
+        id = create_report(
+            data={
+                "conditions_report": request_data,
+                "car_name": f"{selected_make} {selected_model} {selected_year}",
+            }
+        )
 
         # TODO Expand for each side of the car, I added logic to exclude parts in the colorizer but feel free to do it in a different way
 
         car_sides = ["front", "back", "left", "right"]
+        import boto3
+
+        s3 = boto3.resource("s3")
 
         for side in car_sides:
             colored_side = process_car_parts(dict(conditions_report_response), side)
-            colored_side.save(f"images/car_parts/colored_car_{side}.png")
-
-        pdf_report = generate_report(dict(conditions_report_response))
-
-        with open(pdf_report, "rb") as file:
-            btn = st.download_button(
-                label="Download Report",
-                data=file,
-                file_name=pdf_report,
-                mime="application/pdf",
+            in_memory_file = BytesIO()
+            colored_side.save(in_memory_file, format="PNG")
+            in_memory_file.seek(0)
+            s3.Bucket("elastic-llm").put_object(
+                Key=f"{id}/colored_car_{side}.png",
+                Body=in_memory_file,
             )
+            # colored_side.save(f"images/car_parts/{id}/colored_car_{side}.png")
+
+        href = st.markdown(
+            f"<a href='{api_url}/report/{id}' target='_blank'>View report</a>",
+            unsafe_allow_html=True,
+        )
 
         # st.subheader("Summary")
         # st.write(damages_response.summary)
