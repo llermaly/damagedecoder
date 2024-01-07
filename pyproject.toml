@@ -16,6 +16,7 @@ weaviate-client = "^3.26.0"
 google-generativeai = ">=0.3.0"
 weasyprint = "^60.2"
 boto3 = "^1.34.14"
+streamlit-modal = "^0.1.0"
 
 
 [build-system]

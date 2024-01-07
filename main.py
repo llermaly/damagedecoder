@@ -22,6 +22,10 @@ from car_colorizer import process_car_parts
 from report import generate_report
 import requests
 from io import BytesIO
+from streamlit_modal import Modal
+import streamlit.components.v1 as components
+
+modal = Modal("Damage Report", key="demo", max_width=1280)
 
 api_url = "https://dmg-decoder.up.railway.app"
 
@@ -39,7 +43,12 @@ def create_report(data={"test": "123"}):
 load_dotenv()
 
 
-states_names = ["front_image", "back_image", "left_image", "right_image"]
+
+
+
+
+
+states_names = ["front_image", "back_image", "left_image", "right_image", "report_id"]
 
 auth_config = weaviate.AuthApiKey(api_key=os.environ["WEAVIATE_API_KEY"])
 openai_mm_llm = OpenAIMultiModal(model="gpt-4-vision-preview")
@@ -150,16 +159,6 @@ if submit_button:
 
         image_documents = SimpleDirectoryReader(path).load_data()
 
-        # damages_response = pydantic_llm(
-        #     output_class=DamagedParts,
-        #     image_documents=image_documents,
-        #     prompt_template_str=damages_initial_prompt_str.format(
-        #         make_name=selected_make, model_name=selected_model, year=selected_year
-        #     ),
-        # )
-
-        # TODO: evaluate if it's a better idea to send pictures one by one
-
         conditions_report_response = pydantic_llm(
             output_class=ConditionsReport,
             image_documents=image_documents,
@@ -170,9 +169,6 @@ if submit_button:
 
         for state_name in states_names:
             delete_image(state_name)
-
-        st.subheader("Conditions Report")
-        st.table(conditions_report_response)
 
         request_data = []
 
@@ -186,7 +182,7 @@ if submit_button:
             }
         )
 
-        # TODO Expand for each side of the car, I added logic to exclude parts in the colorizer but feel free to do it in a different way
+        st.session_state["report_id"] = id
 
         car_sides = ["front", "back", "left", "right"]
         import boto3
@@ -202,12 +198,27 @@ if submit_button:
                 Key=f"{id}/colored_car_{side}.png",
                 Body=in_memory_file,
             )
-            # colored_side.save(f"images/car_parts/{id}/colored_car_{side}.png")
 
-        href = st.markdown(
-            f"<a href='{api_url}/report/{id}' target='_blank'>View report</a>",
+        modal.open()
+
+if modal.is_open():
+    with modal.container():
+
+        st.markdown(
+            f"<a href='{api_url}/report/{st.session_state["report_id"]}' target='_blank'>Go to report</a>",
             unsafe_allow_html=True,
         )
+
+        st.code(f"{api_url}/report/{st.session_state["report_id"]}", language="python")
+
+
+        html_string = f"""
+            <div style="max-height:450px;overflow-y:auto;overflow-x:hidden">
+                <iframe style="overflow-x:hidden" src="{api_url}/report/{st.session_state["report_id"]}" width="100%" height="960px"></iframe>
+            </div>
+        """
+        components.html(html_string, height=450)
+
 
         # st.subheader("Summary")
         # st.write(damages_response.summary)
