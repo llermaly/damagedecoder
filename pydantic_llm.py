@@ -66,8 +66,7 @@ class DamagedPart(BaseModel):
 class DamagedParts(BaseModel):
     """Data model of the damaged parts"""
 
-    damaged_parts: list[DamagedPart] = Field(...,
-                                             description="List of damaged parts")
+    damaged_parts: list[DamagedPart] = Field(..., description="List of damaged parts")
     summary: str = Field(..., description="Summary of the damage")
 
 
@@ -75,70 +74,99 @@ class ConditionsReport(BaseModel):
     """Data model of conditions report"""
 
     roof: Annotated[int, Field(0, ge=0, le=3, description="Roof condition")]
-    windshield: Annotated[int, Field(
-        0, ge=0, le=3, description="Windshield condition")]
+    windshield: Annotated[int, Field(0, ge=0, le=3, description="Windshield condition")]
     hood: Annotated[int, Field(0, ge=0, le=3, description="Hood condition")]
     grill: Annotated[int, Field(0, ge=0, le=3, description="Grill condition")]
-    front_bumper: Annotated[int, Field(
-        0, ge=0, le=3, description="Front bumper condition")]
-    right_mirror: Annotated[int, Field(
-        0, ge=0, le=3, description="Right mirror condition")]
-    left_mirror: Annotated[int, Field(
-        0, ge=0, le=3, description="Left mirror condition")]
-    front_right_light: Annotated[int, Field(
-        0, ge=0, le=3, description="Front right light condition")]
-    front_left_light: Annotated[int, Field(
-        0, ge=0, le=3, description="Front left light condition")]
-#back 
-    rear_window: Annotated[int, Field(
-        0, ge=0, le=3, description="Rear window condition")]
-    trunk_tgate: Annotated[int, Field(
-        0, ge=0, le=3, description="Trunk/TGate condition")]
-    trunk_cargo_area: Annotated[int, Field(
-        0, ge=0, le=3, description="Trunk/Cargo area condition")]
-    rear_bumper: Annotated[int, Field(
-        0, ge=0, le=3, description="Rear bumper condition")]
-    right_tail_light: Annotated[int, Field(
-        0, ge=0, le=3, description="Right tail light condition")]
-    left_tail_light: Annotated[int, Field(
-        0, ge=0, le=3, description="Left tail light condition")]
-#left
-    left_rear_quarter: Annotated[int, Field(
-        0, ge=0, le=3, description="Left rear quarter condition")]
-    left_rear_door: Annotated[int, Field(
-        0, ge=0, le=3, description="Left rear door condition")]
-    left_front_door: Annotated[int, Field(
-        0, ge=0, le=3, description="Left front door condition")]
-    left_fender: Annotated[int, Field(
-        0, ge=0, le=3, description="Left fender condition")]
-    left_front_tire: Annotated[int, Field(
-        0, ge=0, le=3, description="Left front tire condition")]
-    left_rear_tire: Annotated[int, Field(
-        0, ge=0, le=3, description="Left rear tire condition")]
-#right
-    right_rear_quarter: Annotated[int, Field(
-        0, ge=0, le=3, description="Right rear quarter condition")]
-    right_rear_door: Annotated[int, Field(
-        0, ge=0, le=3, description="Right rear door condition")]
-    right_front_door: Annotated[int, Field(
-        0, ge=0, le=3, description="Right front door condition")]
-    right_fender: Annotated[int, Field(
-        0, ge=0, le=3, description="Right fender condition")]
-    right_front_tire: Annotated[int, Field(
-        0, ge=0, le=3, description="Right front tire condition")]
-    right_rear_tire: Annotated[int, Field(
-        0, ge=0, le=3, description="Right rear tire condition")]
-    
-    
-def pydantic_llm(output_class, image_documents, prompt_template_str):
+    front_bumper: Annotated[
+        int, Field(0, ge=0, le=3, description="Front bumper condition")
+    ]
+    right_mirror: Annotated[
+        int, Field(0, ge=0, le=3, description="Right mirror condition")
+    ]
+    left_mirror: Annotated[
+        int, Field(0, ge=0, le=3, description="Left mirror condition")
+    ]
+    front_right_light: Annotated[
+        int, Field(0, ge=0, le=3, description="Front right light condition")
+    ]
+    front_left_light: Annotated[
+        int, Field(0, ge=0, le=3, description="Front left light condition")
+    ]
+    # back
+    rear_window: Annotated[
+        int, Field(0, ge=0, le=3, description="Rear window condition")
+    ]
+    trunk_tgate: Annotated[
+        int, Field(0, ge=0, le=3, description="Trunk/TGate condition")
+    ]
+    trunk_cargo_area: Annotated[
+        int, Field(0, ge=0, le=3, description="Trunk/Cargo area condition")
+    ]
+    rear_bumper: Annotated[
+        int, Field(0, ge=0, le=3, description="Rear bumper condition")
+    ]
+    right_tail_light: Annotated[
+        int, Field(0, ge=0, le=3, description="Right tail light condition")
+    ]
+    left_tail_light: Annotated[
+        int, Field(0, ge=0, le=3, description="Left tail light condition")
+    ]
+    # left
+    left_rear_quarter: Annotated[
+        int, Field(0, ge=0, le=3, description="Left rear quarter condition")
+    ]
+    left_rear_door: Annotated[
+        int, Field(0, ge=0, le=3, description="Left rear door condition")
+    ]
+    left_front_door: Annotated[
+        int, Field(0, ge=0, le=3, description="Left front door condition")
+    ]
+    left_fender: Annotated[
+        int, Field(0, ge=0, le=3, description="Left fender condition")
+    ]
+    left_front_tire: Annotated[
+        int, Field(0, ge=0, le=3, description="Left front tire condition")
+    ]
+    left_rear_tire: Annotated[
+        int, Field(0, ge=0, le=3, description="Left rear tire condition")
+    ]
+    # right
+    right_rear_quarter: Annotated[
+        int, Field(0, ge=0, le=3, description="Right rear quarter condition")
+    ]
+    right_rear_door: Annotated[
+        int, Field(0, ge=0, le=3, description="Right rear door condition")
+    ]
+    right_front_door: Annotated[
+        int, Field(0, ge=0, le=3, description="Right front door condition")
+    ]
+    right_fender: Annotated[
+        int, Field(0, ge=0, le=3, description="Right fender condition")
+    ]
+    right_front_tire: Annotated[
+        int, Field(0, ge=0, le=3, description="Right front tire condition")
+    ]
+    right_rear_tire: Annotated[
+        int, Field(0, ge=0, le=3, description="Right rear tire condition")
+    ]
+
+
+def pydantic_llm(
+    output_class, image_documents, prompt_template_str, selected_llm_model
+):
     openai_mm_llm = OpenAIMultiModal(model="gpt-4-vision-preview")
     gemini_llm = GeminiMultiModal(model_name="models/gemini-pro-vision")
+
+    multi_modal_llm = gemini_llm
+
+    if selected_llm_model == "OpenAI":
+        multi_modal_llm = openai_mm_llm
 
     llm_program = MultiModalLLMCompletionProgram.from_defaults(
         output_parser=PydanticOutputParser(output_class),
         image_documents=image_documents,
         prompt_template_str=prompt_template_str,
-        multi_modal_llm=gemini_llm,
+        multi_modal_llm=multi_modal_llm,
         verbose=True,
     )
 

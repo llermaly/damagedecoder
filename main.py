@@ -43,11 +43,6 @@ def create_report(data={"test": "123"}):
 load_dotenv()
 
 
-
-
-
-
-
 states_names = ["front_image", "back_image", "left_image", "right_image", "report_id"]
 
 auth_config = weaviate.AuthApiKey(api_key=os.environ["WEAVIATE_API_KEY"])
@@ -149,6 +144,11 @@ with st.form(key="car_form"):
         ("2007", "2010", "2011", "2012", "2013", "2014"),
     )
 
+    selected_llm_model = st.selectbox(
+        "Select LLM model",
+        ("Gemini", "OpenAI"),
+    )
+
     submit_button = st.form_submit_button(label="Submit")
 
 if submit_button:
@@ -165,6 +165,7 @@ if submit_button:
             prompt_template_str=conditions_report_initial_prompt_str.format(
                 make_name=selected_make, model_name=selected_model, year=selected_year
             ),
+            selected_llm_model=selected_llm_model,
         )
 
         for state_name in states_names:
@@ -203,22 +204,19 @@ if submit_button:
 
 if modal.is_open():
     with modal.container():
-
         st.markdown(
-            f"<a href='{api_url}/report/{st.session_state["report_id"]}' target='_blank'>Go to report</a>",
+            f"<a href='{api_url}/report/{st.session_state['report_id']}' target='_blank'>Go to report</a>",
             unsafe_allow_html=True,
         )
 
-        st.code(f"{api_url}/report/{st.session_state["report_id"]}", language="python")
-
+        st.code(f"{api_url}/report/{st.session_state['report_id']}", language="python")
 
         html_string = f"""
-            <div style="max-height:450px;overflow-y:auto;overflow-x:hidden">
-                <iframe style="overflow-x:hidden" src="{api_url}/report/{st.session_state["report_id"]}" width="100%" height="960px"></iframe>
+            <div style="max-height:350px;overflow-y:auto;overflow-x:hidden">
+                <iframe style="overflow-x:hidden" src="{api_url}/report/{st.session_state['report_id']}" width="100%" height="960px"></iframe>
             </div>
         """
-        components.html(html_string, height=450)
-
+        components.html(html_string, height=350)
 
         # st.subheader("Summary")
         # st.write(damages_response.summary)
