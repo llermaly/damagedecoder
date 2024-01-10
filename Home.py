@@ -70,10 +70,7 @@ for state_name in states_names:
         st.session_state[state_name] = None
 
 
-st.title("Repair your car!")
-st.write(
-    "Upload your car crash pictures and we weill give you an aproximate repair cost and which parts do you need."
-)
+st.title("Damage Decoder")
 
 
 st.subheader("Upload your car crash pictures")
