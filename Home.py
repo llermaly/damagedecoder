@@ -19,7 +19,6 @@ from pydantic_llm import (
 import pandas as pd
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
 from car_colorizer import process_car_parts
-from report import generate_report
 import requests
 from io import BytesIO
 from streamlit_modal import Modal
