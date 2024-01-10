@@ -6,7 +6,7 @@ authors = ["abstract829 <maxxii.1820@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11.7"
 streamlit = "^1.29.0"
 opencv-python = "^4.8.1.78"
 llama-index = "^0.9.22"
