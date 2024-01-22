@@ -3,14 +3,12 @@ from dotenv import load_dotenv
 from io import BytesIO
 from llama_index import SimpleDirectoryReader
 from llama_index.multi_modal_llms.openai import OpenAIMultiModal
-from llama_index.vector_stores import WeaviateVectorStore
 from streamlit_modal import Modal
 import cv2
 import os
 import requests
 import streamlit as st
 import streamlit.components.v1 as components
-import weaviate
 from pydantic_llm import (
     pydantic_llm,
     ConditionsReport,
@@ -34,18 +32,7 @@ def create_report(data={"test": "123"}):
 
 load_dotenv()
 
-
-auth_config = weaviate.AuthApiKey(api_key=os.environ["WEAVIATE_API_KEY"])
 openai_mm_llm = OpenAIMultiModal(model="gpt-4-vision-preview")
-
-client = weaviate.Client(
-    os.environ["WEAVIATE_URL"],
-    auth_client_secret=weaviate.AuthApiKey(api_key=os.environ["WEAVIATE_API_KEY"]),
-)
-
-vector_store = WeaviateVectorStore(
-    weaviate_client=client, index_name="CarPart", text_key="title"
-)
 
 # Remove form border and padding styles
 css = r"""

@@ -1,13 +1,8 @@
 from dotenv import load_dotenv
-from llama_index import VectorStoreIndex
-from llama_index.query_engine import RetrieverQueryEngine
-from llama_index.vector_stores import WeaviateVectorStore
-from llama_index.vector_stores.types import MetadataFilters, MetadataFilter
 import cv2
 import numpy as np
 import os
 import streamlit as st
-import weaviate
 from llama_index import SimpleDirectoryReader
 from pydantic_llm import (
     pydantic_llm,
@@ -44,17 +39,7 @@ load_dotenv()
 
 states_names = ["front_image", "back_image", "left_image", "right_image", "report_id"]
 
-auth_config = weaviate.AuthApiKey(api_key=os.environ["WEAVIATE_API_KEY"])
 openai_mm_llm = OpenAIMultiModal(model="gpt-4-vision-preview")
-
-client = weaviate.Client(
-    os.environ["WEAVIATE_URL"],
-    auth_client_secret=weaviate.AuthApiKey(api_key=os.environ["WEAVIATE_API_KEY"]),
-)
-
-vector_store = WeaviateVectorStore(
-    weaviate_client=client, index_name="CarPart", text_key="title"
-)
 
 # Remove form border and padding styles
 css = r"""
